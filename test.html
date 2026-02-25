@@ -1,0 +1,467 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>密码输入特效 - xwy</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            color: #fff;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            overflow-x: hidden;
+        }
+        
+        .container {
+            width: 100%;
+            max-width: 800px;
+            text-align: center;
+            padding: 30px;
+        }
+        
+        h1 {
+            font-size: 2.8rem;
+            margin-bottom: 10px;
+            background: linear-gradient(90deg, #00dbde, #fc00ff);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            letter-spacing: 2px;
+        }
+        
+        .subtitle {
+            font-size: 1.2rem;
+            color: #aaa;
+            margin-bottom: 40px;
+            font-weight: 300;
+        }
+        
+        .input-container {
+            position: relative;
+            margin: 50px auto;
+            width: 100%;
+            max-width: 500px;
+            transition: all 0.8s ease;
+        }
+        
+        .input-box {
+            width: 100%;
+            padding: 20px 25px;
+            font-size: 1.5rem;
+            border: none;
+            border-radius: 15px;
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+            outline: none;
+            text-align: center;
+            letter-spacing: 2px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+            transition: all 0.3s ease;
+            border: 2px solid transparent;
+        }
+        
+        .input-box:focus {
+            background: rgba(255, 255, 255, 0.15);
+            border: 2px solid #6a11cb;
+            box-shadow: 0 0 20px rgba(106, 17, 203, 0.5);
+        }
+        
+        .input-box::placeholder {
+            color: rgba(255, 255, 255, 0.5);
+            letter-spacing: 1px;
+        }
+        
+        .hint {
+            margin-top: 15px;
+            color: #888;
+            font-size: 1rem;
+            opacity: 0.8;
+            transition: opacity 0.5s;
+        }
+        
+        /* 输入框消失动画 */
+        .input-container.hidden {
+            opacity: 0;
+            transform: translateY(-30px) scale(0.9);
+            pointer-events: none;
+        }
+        
+        /* xwy文字效果容器 */
+        .xwy-container {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.5s, visibility 0.5s;
+        }
+        
+        .xwy-container.show {
+            opacity: 1;
+            visibility: visible;
+        }
+        
+        /* xwy文字样式 */
+        .xwy-text {
+            font-size: 8rem;
+            font-weight: 900;
+            background: linear-gradient(45deg, #ff0080, #ff8c00, #40e0d0, #ff0080);
+            background-size: 400% 400%;
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            text-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+            animation: gradientShift 3s ease infinite, float 3s ease-in-out infinite;
+            letter-spacing: 10px;
+        }
+        
+        /* 粒子效果 */
+        .particles {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: -1;
+        }
+        
+        .particle {
+            position: absolute;
+            border-radius: 50%;
+            background-color: rgba(255, 255, 255, 0.7);
+            animation: particleFloat 15s infinite linear;
+        }
+        
+        /* 响应式设计 */
+        @media (max-width: 768px) {
+            h1 {
+                font-size: 2.2rem;
+            }
+            
+            .input-box {
+                font-size: 1.2rem;
+                padding: 15px 20px;
+            }
+            
+            .xwy-text {
+                font-size: 5rem;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            h1 {
+                font-size: 1.8rem;
+            }
+            
+            .subtitle {
+                font-size: 1rem;
+            }
+            
+            .input-box {
+                font-size: 1rem;
+                padding: 12px 15px;
+            }
+            
+            .xwy-text {
+                font-size: 3.5rem;
+                letter-spacing: 5px;
+            }
+        }
+        
+        /* 动画定义 */
+        @keyframes gradientShift {
+            0% {
+                background-position: 0% 50%;
+            }
+            50% {
+                background-position: 100% 50%;
+            }
+            100% {
+                background-position: 0% 50%;
+            }
+        }
+        
+        @keyframes float {
+            0%, 100% {
+                transform: translateY(0);
+            }
+            50% {
+                transform: translateY(-20px);
+            }
+        }
+        
+        @keyframes particleFloat {
+            0% {
+                transform: translateY(100vh) rotate(0deg);
+                opacity: 0;
+            }
+            10% {
+                opacity: 1;
+            }
+            90% {
+                opacity: 1;
+            }
+            100% {
+                transform: translateY(-100px) rotate(360deg);
+                opacity: 0;
+            }
+        }
+        
+        /* 指令说明样式 */
+        .instructions {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 10px;
+            padding: 20px;
+            margin-top: 40px;
+            max-width: 600px;
+            text-align: left;
+        }
+        
+        .instructions h3 {
+            color: #6a11cb;
+            margin-bottom: 10px;
+        }
+        
+        .instructions ul {
+            padding-left: 20px;
+            line-height: 1.6;
+        }
+        
+        .instructions li {
+            margin-bottom: 8px;
+        }
+        
+        .instructions code {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-family: monospace;
+        }
+        
+        .footer {
+            margin-top: 40px;
+            color: #666;
+            font-size: 0.9rem;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>密码输入特效</h1>
+        <p class="subtitle">输入特定密码后，输入框将消失并显示"xwy"文字特效</p>
+        
+        <!-- 输入框容器 -->
+        <div class="input-container" id="inputContainer">
+            <input type="text" class="input-box" id="passwordInput" placeholder="输入密码..." autocomplete="off">
+            <p class="hint">提示：试试 "open sesame"、"芝麻开门" 或 "xwy123"</p>
+        </div>
+        
+        <!-- xwy文字容器 -->
+        <div class="xwy-container" id="xwyContainer">
+            <div class="xwy-text">xwy</div>
+        </div>
+        
+        <!-- 粒子效果容器 -->
+        <div class="particles" id="particles"></div>
+        
+        <!-- 指令说明 -->
+        <div class="instructions">
+            <h3>使用说明：</h3>
+            <ul>
+                <li>在输入框中输入特定字符串，触发特效</li>
+                <li>有效的密码包括：<code>open sesame</code>、<code>芝麻开门</code>、<code>xwy123</code></li>
+                <li>触发后输入框将消失，并显示"xwy"文字动画</li>
+                <li>按ESC键可以重置页面，重新显示输入框</li>
+                <li>此效果纯前端实现，无需网络请求</li>
+            </ul>
+        </div>
+        
+        <div class="footer">
+            特效页面 | 输入密码触发xwy效果
+        </div>
+    </div>
+
+    <script>
+        // 获取DOM元素
+        const inputContainer = document.getElementById('inputContainer');
+        const passwordInput = document.getElementById('passwordInput');
+        const xwyContainer = document.getElementById('xwyContainer');
+        const particlesContainer = document.getElementById('particles');
+        const hint = document.querySelector('.hint');
+        
+        // 有效密码列表
+        const validPasswords = ['open sesame', '芝麻开门', 'xwy123'];
+        
+        // 创建粒子效果
+        function createParticles() {
+            // 清空现有粒子
+            particlesContainer.innerHTML = '';
+            
+            // 创建粒子
+            for (let i = 0; i < 100; i++) {
+                const particle = document.createElement('div');
+                particle.classList.add('particle');
+                
+                // 随机属性
+                const size = Math.random() * 5 + 2;
+                const left = Math.random() * 100;
+                const duration = Math.random() * 20 + 10;
+                const delay = Math.random() * 5;
+                const color = `rgba(${Math.floor(Math.random() * 256)}, ${Math.floor(Math.random() * 256)}, ${Math.floor(Math.random() * 256)}, 0.7)`;
+                
+                // 设置样式
+                particle.style.width = `${size}px`;
+                particle.style.height = `${size}px`;
+                particle.style.left = `${left}%`;
+                particle.style.backgroundColor = color;
+                particle.style.animationDuration = `${duration}s`;
+                particle.style.animationDelay = `${delay}s`;
+                
+                particlesContainer.appendChild(particle);
+            }
+        }
+        
+        // 触发特效
+        function triggerEffect() {
+            // 隐藏输入框
+            inputContainer.classList.add('hidden');
+            hint.style.opacity = '0';
+            
+            // 显示xwy文字
+            setTimeout(() => {
+                xwyContainer.classList.add('show');
+                createParticles();
+                
+                // 添加庆祝音效（可选）
+                playCelebrationSound();
+            }, 800);
+        }
+        
+        // 播放庆祝音效
+        function playCelebrationSound() {
+            try {
+                // 创建音效上下文
+                const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+                
+                // 播放音效
+                playBellSound(audioContext);
+                setTimeout(() => playBellSound(audioContext, 523.25), 200); // C5
+                setTimeout(() => playBellSound(audioContext, 659.25), 400); // E5
+                
+            } catch (e) {
+                console.log("音频上下文不支持或用户未交互");
+            }
+        }
+        
+        // 播放铃声
+        function playBellSound(audioContext, frequency = 392.00) { // G4
+            const oscillator = audioContext.createOscillator();
+            const gainNode = audioContext.createGain();
+            
+            oscillator.connect(gainNode);
+            gainNode.connect(audioContext.destination);
+            
+            oscillator.frequency.value = frequency;
+            oscillator.type = 'sine';
+            
+            gainNode.gain.setValueAtTime(0.3, audioContext.currentTime);
+            gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 1);
+            
+            oscillator.start(audioContext.currentTime);
+            oscillator.stop(audioContext.currentTime + 1);
+        }
+        
+        // 重置页面
+        function resetPage() {
+            inputContainer.classList.remove('hidden');
+            xwyContainer.classList.remove('show');
+            hint.style.opacity = '0.8';
+            passwordInput.value = '';
+            passwordInput.focus();
+            
+            // 清空粒子
+            particlesContainer.innerHTML = '';
+        }
+        
+        // 输入事件监听
+        passwordInput.addEventListener('input', function() {
+            const inputValue = this.value.trim();
+            
+            // 检查是否匹配有效密码
+            if (validPasswords.includes(inputValue.toLowerCase())) {
+                triggerEffect();
+            }
+        });
+        
+        // 键盘事件监听
+        document.addEventListener('keydown', function(event) {
+            // ESC键重置
+            if (event.key === 'Escape') {
+                resetPage();
+            }
+            
+            // 回车键检查密码
+            if (event.key === 'Enter') {
+                const inputValue = passwordInput.value.trim();
+                if (validPasswords.includes(inputValue.toLowerCase())) {
+                    triggerEffect();
+                } else {
+                    // 输入错误时的效果
+                    passwordInput.style.border = '2px solid #ff4757';
+                    passwordInput.style.boxShadow = '0 0 15px rgba(255, 71, 87, 0.5)';
+                    
+                    setTimeout(() => {
+                        passwordInput.style.border = '2px solid transparent';
+                        passwordInput.style.boxShadow = '0 10px 30px rgba(0, 0, 0, 0.3)';
+                    }, 500);
+                }
+            }
+        });
+        
+        // 初始聚焦输入框
+        passwordInput.focus();
+        
+        // 页面加载时创建一些初始粒子
+        createParticles();
+        
+        // 添加鼠标移动效果
+        document.addEventListener('mousemove', function(e) {
+            // 创建跟随鼠标的小粒子
+            if (Math.random() > 0.7 && xwyContainer.classList.contains('show')) {
+                const particle = document.createElement('div');
+                particle.classList.add('particle');
+                
+                const size = Math.random() * 3 + 1;
+                particle.style.width = `${size}px`;
+                particle.style.height = `${size}px`;
+                particle.style.left = `${e.clientX}px`;
+                particle.style.top = `${e.clientY}px`;
+                particle.style.backgroundColor = `rgba(${Math.floor(Math.random() * 256)}, ${Math.floor(Math.random() * 256)}, ${Math.floor(Math.random() * 256)}, 0.7)`;
+                particle.style.animationDuration = `${Math.random() * 5 + 2}s`;
+                
+                particlesContainer.appendChild(particle);
+                
+                // 3秒后移除粒子
+                setTimeout(() => {
+                    if (particle.parentNode) {
+                        particle.parentNode.removeChild(particle);
+                    }
+                }, 3000);
+            }
+        });
+    </script>
+</body>
+</html>
