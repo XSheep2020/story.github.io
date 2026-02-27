@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>你不是说你会选择我吗？</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', 'Microsoft YaHei', sans-serif;
+        }
+
+        body {
+            min-height: 100vh;
+            background: linear-gradient(rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.7)), 
+                        url('https://images.unsplash.com/photo-1519681393784-d120267933ba?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2070&q=80') 
+                        no-repeat center center fixed;
+            background-size: cover;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .container {
+            text-align: center;
+            padding: 20px;
+            z-index: 10;
+        }
+
+        h1 {
+            color: #fff;
+            margin-bottom: 30px;
+            font-size: 2.5rem;
+            text-shadow: 0 2px 10px rgba(0, 0, 0, 0.5);
+            letter-spacing: 1px;
+        }
+
+        .trigger-btn {
+            background: linear-gradient(135deg, #6a11cb 0%, #2575fc 100%);
+            color: white;
+            border: none;
+            padding: 18px 40px;
+            font-size: 1.4rem;
+            border-radius: 50px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 5px 20px rgba(106, 17, 203, 0.4);
+            font-weight: 600;
+            letter-spacing: 1px;
+        }
+
+        .trigger-btn:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(106, 17, 203, 0.6);
+        }
+
+        .trigger-btn:active {
+            transform: translateY(0);
+            box-shadow: 0 5px 15px rgba(106, 17, 203, 0.4);
+        }
+
+        .text-bubble {
+            position: absolute;
+            background: rgba(255, 255, 255, 0.9);
+            border-radius: 12px;
+            padding: 15px 25px;
+            font-size: 1.3rem;
+            font-weight: 600;
+            color: #333;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+            z-index: 5;
+            opacity: 0;
+            animation: floatUp 3s forwards;
+            text-align: center;
+            max-width: 200px;
+            line-height: 1.4;
+        }
+
+        @keyframes floatUp {
+            0% {
+                transform: translateY(0) scale(0.8);
+                opacity: 0;
+            }
+            10% {
+                opacity: 1;
+            }
+            20% {
+                transform: translateY(-30px) scale(1);
+            }
+            80% {
+                opacity: 1;
+            }
+            100% {
+                transform: translateY(-300px) scale(0.8);
+                opacity: 0;
+            }
+        }
+
+        .instructions {
+            position: fixed;
+            bottom: 20px;
+            left: 0;
+            right: 0;
+            text-align: center;
+            color: rgba(255, 255, 255, 0.7);
+            font-size: 0.9rem;
+        }
+
+        /* 响应式设计 */
+        @media (max-width: 768px) {
+            h1 {
+                font-size: 2rem;
+            }
+            
+            .trigger-btn {
+                padding: 15px 30px;
+                font-size: 1.2rem;
+            }
+            
+            .text-bubble {
+                font-size: 1.1rem;
+                max-width: 150px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>你不是说你会选择我吗？</h1>
+        <button class="trigger-btn" id="triggerBtn">点击生成弹窗</button>
+    </div>
+    
+    <div class="instructions">点击按钮后，屏幕上会出现多个文字弹窗，它们会上升并逐渐消失</div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const triggerBtn = document.getElementById('triggerBtn');
+            const body = document.body;
+            
+            // 弹窗文字内容
+            const texts = [
+                "你好，世界！",
+                "欢迎使用弹窗效果",
+                "前端开发很有趣",
+                "CSS动画很强大",
+                "JavaScript实现交互",
+                "HTML构建页面结构",
+                "响应式设计很重要",
+                "用户体验是关键",
+                "代码需要简洁高效",
+                "学习是持续的过程",
+                "创造力无限",
+                "技术改变生活",
+                "互联网连接一切",
+                "代码如诗",
+                "设计改变体验"
+            ];
+            
+            // 弹窗颜色选项
+            const colors = [
+                "rgba(255, 255, 255, 0.9)",
+                "rgba(255, 240, 200, 0.9)",
+                "rgba(200, 240, 255, 0.9)",
+                "rgba(220, 255, 220, 0.9)",
+                "rgba(255, 220, 255, 0.9)"
+            ];
+            
+            // 点击按钮事件
+            triggerBtn.addEventListener('click', function() {
+                // 生成10-15个弹窗
+                const bubbleCount = Math.floor(Math.random() * 6) + 10;
+                
+                for (let i = 0; i < bubbleCount; i++) {
+                    createTextBubble();
+                }
+                
+                // 按钮点击反馈
+                triggerBtn.style.transform = 'scale(0.95)';
+                setTimeout(() => {
+                    triggerBtn.style.transform = 'scale(1)';
+                }, 150);
+            });
+            
+            function createTextBubble() {
+                // 创建弹窗元素
+                const bubble = document.createElement('div');
+                bubble.className = 'text-bubble';
+                
+                // 随机选择文字
+                const randomText = texts[Math.floor(Math.random() * texts.length)];
+                bubble.textContent = randomText;
+                // 随机选择颜色
+                const randomColor = colors[Math.floor(Math.random() * colors.length)];
+                bubble.style.backgroundColor = randomColor;
+                
+                // 随机位置 (水平方向)
+                const posX = Math.random() * (window.innerWidth - 200) + 100;
+                bubble.style.left = `${posX}px`;
+                
+                // 从底部附近开始
+                const startY = window.innerHeight - 50;
+                bubble.style.bottom = `${Math.random() * 30 + 20}px`;
+                
+                // 随机动画延迟和持续时间
+                const delay = Math.random() * 0.5;
+                const duration = 2 + Math.random() * 2;
+                bubble.style.animationDelay = `${delay}s`;
+                bubble.style.animationDuration = `${duration}s`;
+                
+                // 随机字体大小
+                const fontSize = 0.9 + Math.random() * 0.6;
+                bubble.style.fontSize = `${fontSize}rem`;
+                
+                // 添加到页面
+                body.appendChild(bubble);
+                
+                // 动画结束后移除元素
+                setTimeout(() => {
+                    if (bubble.parentNode) {
+                        bubble.parentNode.removeChild(bubble);
+                    }
+                }, (duration + delay) * 1000);
+            }
+            
+            // 初始加载时自动生成几个弹窗作为演示
+            setTimeout(() => {
+                for (let i = 0; i < 3; i++) {
+                    setTimeout(() => createTextBubble(), i * 300);
+                }
+            }, 1000);
+        });
+    </script>
+</body>
+</html>
