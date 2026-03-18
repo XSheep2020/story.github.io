@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>你不是说你会选择我吗？</title>
+    <title>文字弹窗验证系统</title>
     <style>
         * {
             margin: 0;
@@ -23,20 +23,78 @@
             align-items: center;
             overflow: hidden;
             position: relative;
+            padding: 20px;
         }
 
         .container {
             text-align: center;
-            padding: 20px;
+            padding: 30px;
             z-index: 10;
+            background: rgba(0, 0, 0, 0.6);
+            border-radius: 20px;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            max-width: 600px;
+            width: 100%;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.5);
         }
 
         h1 {
             color: #fff;
-            margin-bottom: 30px;
+            margin-bottom: 20px;
             font-size: 2.5rem;
             text-shadow: 0 2px 10px rgba(0, 0, 0, 0.5);
             letter-spacing: 1px;
+        }
+
+        .description {
+            color: rgba(255, 255, 255, 0.8);
+            margin-bottom: 30px;
+            line-height: 1.6;
+            font-size: 1.1rem;
+        }
+
+        .highlight {
+            color: #ffcc00;
+            font-weight: bold;
+        }
+
+        .input-section {
+            margin-bottom: 25px;
+            text-align: left;
+        }
+
+        label {
+            display: block;
+            color: #fff;
+            margin-bottom: 10px;
+            font-size: 1.1rem;
+            font-weight: 500;
+        }
+
+        .text-input {
+            width: 100%;
+            padding: 15px;
+            font-size: 1.1rem;
+            border: 2px solid rgba(106, 17, 203, 0.5);
+            border-radius: 12px;
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+            transition: all 0.3s ease;
+            outline: none;
+        }
+
+        .text-input:focus {
+            border-color: #6a11cb;
+            background: rgba(255, 255, 255, 0.15);
+            box-shadow: 0 0 0 3px rgba(106, 17, 203, 0.3);
+        }
+
+        .validation-hint {
+            color: rgba(255, 255, 255, 0.6);
+            font-size: 0.9rem;
+            margin-top: 8px;
+            display: block;
         }
 
         .trigger-btn {
@@ -51,6 +109,8 @@
             box-shadow: 0 5px 20px rgba(106, 17, 203, 0.4);
             font-weight: 600;
             letter-spacing: 1px;
+            width: 100%;
+            margin-top: 10px;
         }
 
         .trigger-btn:hover {
@@ -61,6 +121,39 @@
         .trigger-btn:active {
             transform: translateY(0);
             box-shadow: 0 5px 15px rgba(106, 17, 203, 0.4);
+        }
+
+        .trigger-btn:disabled {
+            background: linear-gradient(135deg, #555 0%, #777 100%);
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+
+        .status-message {
+            margin-top: 20px;
+            padding: 12px;
+            border-radius: 10px;
+            font-weight: 600;
+            display: none;
+            animation: fadeIn 0.5s ease;
+        }
+
+        .success {
+            background-color: rgba(76, 175, 80, 0.2);
+            color: #4CAF50;
+            border: 1px solid #4CAF50;
+        }
+
+        .error {
+            background-color: rgba(244, 67, 54, 0.2);
+            color: #F44336;
+            border: 1px solid #F44336;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
         }
 
         .text-bubble {
@@ -78,26 +171,36 @@
             text-align: center;
             max-width: 200px;
             line-height: 1.4;
+            border: 2px solid rgba(106, 17, 203, 0.3);
         }
 
         @keyframes floatUp {
-            0% {
-                transform: translateY(0) scale(0.8);
-                opacity: 0;
-            }
-            10% {
-                opacity: 1;
-            }
-            20% {
-                transform: translateY(-30px) scale(1);
-            }
-            80% {
-                opacity: 1;
-            }
-            100% {
-                transform: translateY(-300px) scale(0.8);
-                opacity: 0;
-            }
+				0% {
+                    transform: translate(-50%, -50%) scale(0.5);
+                    opacity: 0;
+                    filter: blur(5px);
+                }
+                15% {
+                    transform: translate(-50%, -50%) scale(1.1);
+                    opacity: 1;
+                    filter: blur(0);
+                }
+                25% {
+                    transform: translate(-50%, -50%) scale(1);
+                    opacity: 1;
+                }
+                40% {
+                    transform: translate(calc(-50% + ${Math.random() * 100 - 50}px), calc(-50% - 80px)) scale(1);
+                    opacity: 1;
+                }
+                70% {
+                    transform: translate(calc(-50% + ${Math.random() * 150 - 75}px), calc(-50% - 200px)) scale(0.9);
+                    opacity: 0.8;
+                }
+                100% {
+                    transform: translate(calc(-50% + ${Math.random() * 200 - 100}px), calc(-50% - 400px)) scale(0.7);
+                    opacity: 0;
+                }
         }
 
         .instructions {
@@ -116,6 +219,10 @@
                 font-size: 2rem;
             }
             
+            .container {
+                padding: 20px;
+            }
+            
             .trigger-btn {
                 padding: 15px 30px;
                 font-size: 1.2rem;
@@ -129,50 +236,73 @@
     </style>
 </head>
 <body>
-    <div class="container">
-        <h1>你不是说你会选择我吗？</h1>
-        <button class="trigger-btn" id="triggerBtn">点击生成弹窗</button>
+    <div class="container" id="container">
+        <h1>你好，请问你是？</h1>
+        
+        
+        <div class="input-section">
+            <label for="textInput">输入人物名称：</label>
+            <input type="text" id="textInput" class="text-input" placeholder="请输入人物名称...">
+            <span class="validation-hint">是完整人物名称噢~</span>
+        </div>
+        
+        <button class="trigger-btn" id="triggerBtn" disabled>等待输入...</button>
+        
+        <div id="statusMessage" class="status-message"></div>
     </div>
     
-    <div class="instructions">点击按钮后，屏幕上会出现多个文字弹窗，它们会上升并逐渐消失</div>
 
     <script>
         document.addEventListener('DOMContentLoaded', function() {
+			const container=document.getElementById("container")
             const triggerBtn = document.getElementById('triggerBtn');
+            const textInput = document.getElementById('textInput');
+            const statusMessage = document.getElementById('statusMessage');
             const body = document.body;
             
-            // 弹窗文字内容
-            const texts = [
-                "你好，世界！",
-                "欢迎使用弹窗效果",
-                "前端开发很有趣",
-                "CSS动画很强大",
-                "JavaScript实现交互",
-                "HTML构建页面结构",
-                "响应式设计很重要",
-                "用户体验是关键",
-                "代码需要简洁高效",
-                "学习是持续的过程",
-                "创造力无限",
-                "技术改变生活",
-                "互联网连接一切",
-                "代码如诗",
-                "设计改变体验"
+            // 预设的验证内容
+            const CORRECT_TEXT = "天蝎和双鱼";
+            
+            // 验证通过后的弹窗内容
+            const successTexts = [
+                "天蝎与双鱼，水象星座的终极对话，天蝎与双鱼，水象星座的终极对话",
+                "天蝎内核：深渊炼金术士，天蝎与双鱼，水象星座的终极对话",
+                "双鱼内核：宇宙梦境之海，天蝎与双鱼，水象星座的终极对话",
+                "水元素的两个终极面向，天蝎与双鱼，水象星座的终极对话",
+                "天蝎追求深度、真相与转化，天蝎与双鱼，水象星座的终极对话",
+                "双鱼渴望合一、救赎与超越，天蝎与双鱼，水象星座的终极对话",
+                "共同敌人——肤浅，天蝎与双鱼，水象星座的终极对话",
+                "灵魂的先后阶段，天蝎与双鱼，水象星座的终极对话",
+                "天蝎在深海火山中锻造灵魂，天蝎与双鱼，水象星座的终极对话",
+                "双鱼在无垠暖洋中回归宇宙，天蝎与双鱼，水象星座的终极对话",
+                "深刻个体化到回归太一，天蝎与双鱼，水象星座的终极对话",
+                "冥王星 vs 海王星，天蝎与双鱼，水象星座的终极对话",
+                "深渊炼金术士与梦境之海，天蝎与双鱼，水象星座的终极对话",
+                "掌控与消融的平衡，天蝎与双鱼，水象星座的终极对话",
+                "水象星座的神秘连接，天蝎与双鱼，水象星座的终极对话"
             ];
             
             // 弹窗颜色选项
             const colors = [
-                "rgba(255, 255, 255, 0.9)",
-                "rgba(255, 240, 200, 0.9)",
-                "rgba(200, 240, 255, 0.9)",
-                "rgba(220, 255, 220, 0.9)",
-                "rgba(255, 220, 255, 0.9)"
+                "rgba(106, 17, 203, 0.9)",    // 紫色系
+                "rgba(255, 255, 255, 0.9)",    // 白色
+                "rgba(200, 240, 255, 0.9)",    // 淡蓝色
+                "rgba(220, 255, 220, 0.9)",    // 淡绿色
+                "rgba(255, 220, 255, 0.9)"     // 淡粉色
             ];
+            
+            // 输入框内容变化时验证
+            textInput.addEventListener('input', function() {
+                validateInput();
+            });
             
             // 点击按钮事件
             triggerBtn.addEventListener('click', function() {
+                if (triggerBtn.disabled) return;
+                
+				container.style.display="none";
                 // 生成10-15个弹窗
-                const bubbleCount = Math.floor(Math.random() * 6) + 10;
+                const bubbleCount = Math.floor(Math.random() * 3) + 20;
                 
                 for (let i = 0; i < bubbleCount; i++) {
                     createTextBubble();
@@ -183,55 +313,140 @@
                 setTimeout(() => {
                     triggerBtn.style.transform = 'scale(1)';
                 }, 150);
+				
+				setTimeout(function(){
+					location.reload();
+				},10000);
             });
             
-            function createTextBubble() {
-                // 创建弹窗元素
-                const bubble = document.createElement('div');
-                bubble.className = 'text-bubble';
+            function validateInput() {
+                const inputText = textInput.value.trim();
                 
-                // 随机选择文字
-                const randomText = texts[Math.floor(Math.random() * texts.length)];
-                bubble.textContent = randomText;
-                // 随机选择颜色
-                const randomColor = colors[Math.floor(Math.random() * colors.length)];
-                bubble.style.backgroundColor = randomColor;
-                
-                // 随机位置 (水平方向)
-                const posX = Math.random() * (window.innerWidth - 200) + 100;
-                bubble.style.left = `${posX}px`;
-                
-                // 从底部附近开始
-                const startY = window.innerHeight - 50;
-                bubble.style.bottom = `${Math.random() * 30 + 20}px`;
-                
-                // 随机动画延迟和持续时间
-                const delay = Math.random() * 0.5;
-                const duration = 2 + Math.random() * 2;
-                bubble.style.animationDelay = `${delay}s`;
-                bubble.style.animationDuration = `${duration}s`;
-                
-                // 随机字体大小
-                const fontSize = 0.9 + Math.random() * 0.6;
-                bubble.style.fontSize = `${fontSize}rem`;
-                
-                // 添加到页面
-                body.appendChild(bubble);
-                
-                // 动画结束后移除元素
-                setTimeout(() => {
-                    if (bubble.parentNode) {
-                        bubble.parentNode.removeChild(bubble);
-                    }
-                }, (duration + delay) * 1000);
+                if (inputText === CORRECT_TEXT) {
+                    // 验证成功
+                    triggerBtn.disabled = false;
+                    triggerBtn.textContent = "我想对你说...";
+                    
+                    showStatusMessage("好久不见，"+inputText, "success");
+                } else if (inputText.length === 0) {
+                    // 输入为空
+                    triggerBtn.disabled = true;
+                    triggerBtn.textContent = "等待输入...";
+                    hideStatusMessage();
+                } else {
+                    // 验证失败
+                    triggerBtn.disabled = true;
+                    triggerBtn.textContent = "跟陌生人没什么好说的...";
+                    showStatusMessage("可惜可惜，似乎不认识", "error");
+                }
             }
             
-            // 初始加载时自动生成几个弹窗作为演示
+            function showStatusMessage(message, type) {
+                statusMessage.textContent = message;
+                statusMessage.className = "status-message " + type;
+                statusMessage.style.display = "block";
+            }
+            
+            function hideStatusMessage() {
+                statusMessage.style.display = "none";
+            }
+            
+            function createTextBubble() {
+				// 创建弹窗元素
+				    const bubble = document.createElement('div');
+				    bubble.className = 'text-bubble';
+				    
+				    // 随机选择文字
+				    const randomText = successTexts[Math.floor(Math.random() * successTexts.length)];
+				    bubble.textContent = randomText;
+				    
+				    // 随机选择颜色
+				    const randomColor = colors[Math.floor(Math.random() * colors.length)];
+				    bubble.style.backgroundColor = randomColor;
+				    
+				    // 设置气泡在屏幕中心
+				    centerX = window.innerWidth / 2+(Math.random()*500-250);
+				    centerY = window.innerHeight / 2+(Math.random()*500-250);
+				    bubble.style.left = `${centerX}px`;
+				    bubble.style.top = `${centerY}px`;
+				    bubble.style.transform = 'translate(-50%, -50%) scale(0)';
+				    bubble.style.opacity = '0';
+				    bubble.style.zIndex = '1000';
+				    bubble.style.position = 'fixed';
+				    
+				    // 添加到页面
+				    body.appendChild(bubble);
+				    
+				    // 随机角度（弧度）和距离
+				    const angle = Math.random() * Math.PI * 2; // 0到2π的随机角度
+				    const distance = 300 + Math.random() * 200; // 随机距离300-500px
+				    //const endX = Math.cos(angle) * distance;
+				    const endY = Math.sin(angle) * distance;
+				    
+				    // 随机动画延迟和持续时间
+				    const delay = Math.random() * 0.3;
+				    const duration = 5 + Math.random(); // 4-6秒
+				    
+				    // 使用关键帧动画
+				    const animationName = `centerExpand_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+				    
+				    // 定义动画关键帧
+				    const keyframes = `
+				        @keyframes ${animationName} {
+				            0% {
+				                transform: translate(-50%, -50%) scale(0);
+				                opacity: 0;
+				            }
+				            15% {
+				                transform: translate(-50%, -50%) scale(1.2);
+				                opacity: 1;
+				            }
+				            25% {
+				                transform: translate(-50%, -50%) scale(1);
+				                opacity: 1;
+				            }
+				            100%{
+				                    transform: translate(-50%, -50%-${endY}px) scale(0.5);
+				                    opacity: 0;
+				                }
+				        }
+				    `;
+				    
+				    // 创建样式元素并添加动画
+				    const styleElement = document.createElement('style');
+				    styleElement.textContent = keyframes;
+				    document.head.appendChild(styleElement);
+				    
+				    // 应用动画
+				    bubble.style.animation = `${animationName} ${duration}s ease-in-out ${delay}s forwards`;
+				    
+				    // 随机字体大小
+				    const fontSize = Math.random()+0.2;
+				    bubble.style.fontSize = `${fontSize}rem`;
+				    
+				    // // 随机旋转角度
+				    // const rotation = Math.random() * 20 - 10; // -10到10度
+				    // bubble.style.transform = `translate(-50%, -50%) scale(0) rotate(${rotation}deg)`;
+				    
+				    // 动画结束后移除元素和对应的样式
+				    // setTimeout(() => {
+				    //     if (bubble.parentNode) {
+				    //         bubble.parentNode.removeChild(bubble);
+				    //     }
+				    //     // 移除动画样式定义
+				    //     if (styleElement.parentNode) {
+				    //         styleElement.parentNode.removeChild(styleElement);
+				    //     }
+				    // }, (duration + delay) * 1000);
+            }
+            
+            // 初始验证
+            validateInput();
+            
+            // 初始加载时显示提示
             setTimeout(() => {
-                for (let i = 0; i < 3; i++) {
-                    setTimeout(() => createTextBubble(), i * 300);
-                }
-            }, 1000);
+                showStatusMessage("请输入验证内容：" + CORRECT_TEXT, "success");
+            }, 500);
         });
     </script>
 </body>
