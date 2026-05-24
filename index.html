@@ -159,49 +159,44 @@
         }
 
         .text-bubble {
-            position: absolute;
+            position: fixed;
             background: rgba(255, 255, 255, 0.9);
-            border-radius: 12px;
-            padding: 15px 25px;
-            font-size: 1rem;
+            border-radius: 6px;
+            padding: 8px 12px;
+            font-size: 14px;
             font-weight: 600;
-            color: #ffffff;
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
-            z-index: 5;
+            color: #333333;
+            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.15);
+            border: 2px solid rgba(0, 0, 0, 0.1);
+            z-index: 1000;
             opacity: 0;
-            animation: floatUp 3s forwards;
             text-align: center;
-            max-width: 200px;
+            min-width: 120px;
+            max-width: 60vw;
             line-height: 1.4;
         }
 
-        @keyframes floatUp {
-				0% {
-                    transform: translate(-50%, -50%) scale(0.5);
-                    opacity: 0;
-                    filter: blur(5px);
-                }
-                15% {
-                    transform: translate(-50%, -50%) scale(1.1);
-                    opacity: 1;
-                    filter: blur(0);
-                }
-                25% {
-                    transform: translate(-50%, -50%) scale(1);
-                    opacity: 1;
-                }
-                40% {
-                    transform: translate(calc(-50% + ${Math.random() * 100 - 50}px), calc(-50% - 80px)) scale(1);
-                    opacity: 1;
-                }
-                70% {
-                    transform: translate(calc(-50% + ${Math.random() * 150 - 75}px), calc(-50% - 200px)) scale(0.9);
-                    opacity: 0.8;
-                }
-                100% {
-                    transform: translate(calc(-50% + ${Math.random() * 200 - 100}px), calc(-50% - 400px)) scale(0.7);
-                    opacity: 0;
-                }
+        @keyframes centerExpand {
+            0% {
+                transform: scale(0);
+                opacity: 0;
+            }
+            20% {
+                transform: scale(1.1);
+                opacity: 1;
+            }
+            30% {
+                transform: scale(1);
+                opacity: 1;
+            }
+            50% {
+                transform: scale(1);
+                opacity: 1;
+            }
+            100% {
+                transform: scale(0.9);
+                opacity: 0;
+            }
         }
 
         .instructions {
@@ -217,21 +212,24 @@
         /* 响应式设计 */
         @media (max-width: 768px) {
             h1 {
-                font-size: 2rem;
+                font-size: 1.5rem;
             }
             
             .container {
-                padding: 20px;
+                padding: 15px;
+                max-width: 90%;
             }
             
             .trigger-btn {
-                padding: 15px 30px;
-                font-size: 1.2rem;
+                padding: 12px 25px;
+                font-size: 1.1rem;
             }
             
             .text-bubble {
-                font-size: 1.1rem;
-                max-width: 150px;
+                font-size: 13px;
+                min-width: 100px;
+                max-width: 50vw;
+                padding: 6px 10px;
             }
         }
     </style>
@@ -261,50 +259,138 @@
             const statusMessage = document.getElementById('statusMessage');
             const body = document.body;
             
-            // 预设的验证内容
-            const CORRECT_TEXT = "蒋伯驾";
+
+            // ========== 可配置区域 START ==========
+            // 在此处添加新的人物配置，每个 key 为人物名称（输入匹配值）
+            // 配置项说明：
+            //   greeting: 验证成功时的问候语（{name} 会被替换为人物名称）
+            //   buttonText: 验证成功后按钮显示的文字
+            //   texts: 气泡展示的文字内容数组
+            //   colors: (可选) 自定义气泡颜色数组，不填则使用默认颜色
+            const BUBBLE_CONFIG = {
+                "蒋伯驾": {
+                    greeting: "好久不见，{name}",
+                    buttonText: "我们一起去老派约会吧...",
+                    texts: [
+                        "蒋伯驾，我爱你。",
+                        "三千年的冲突里，你是我永恒的平静。",
+                        "有一天，当帝国与侵略主义彻底消亡，爱便拥有这世界上唯一一块殖民地。",
+                        "蒋伯驾，天地之宽，出路万万千。",
+                        "蒋伯驾，我们去老派约会吧，话题要漫无目的，像鱼在海里游泳。",
+                        "蒋伯驾，水煮蛋是安心蛋的意思，吃了安心蛋，魂魄就不会被别人抢走。",
+                        "蒋伯驾，生辰快乐。",
+                        "蒋伯驾，亲手把你送进警局，是你给我的生日礼物吗，我不喜欢这份礼物。",
+                        "我们已经认识十年了，我也口是心非了十年。",
+                        "我不奢望我的爱人今生有好果得尝，但我想与他相逢在对错之外的教堂。",
+                        "蒋伯驾，我们在相同的频道里。",
+                        "与我的目的比起来，我的感受我的感情都不重要，但我想不计后果的爱你。",
+                        "蒋生官仔骨骨，最适合危情共舞。",
+                        "我们要一路沿着珠江边走，毫无顾虑地饮酒。",
+                        "蒋伯驾，我觉得你需要一个女朋友扯着你的魂魄，你看我行吗？",
+                        "无法感同，那就身受。",
+                        "在下个路口，我们要去那家饰品店。",
+                        "我想和你一起长命百岁。",
+                        "黄油多士小小一块，配着啤酒吃怎么都吃不够",
+                        "广府的台风天过了，可是我的台风天，此生都过不去",
+                        "这场有关爱的赌局，我满盘皆输。",
+                        "蒋伯驾，我好想你。",
+                        "蒋伯驾，爱过头了不难看。",
+                        "你从来都不是我的柜式情人，你是我从始至终的真心。",
+                        "下周末的约会不许迟到，从第二个路口开始。",
+                        "走到最后一个路口，两个人还没有接吻，这场约会就不算结束。",
+                        "我们要散步，要走很长很长的路，长到这辈子都走不完。",
+                        "我只会看着你、想着你、陪着你。"
+                    ]
+                }, 
+                "顾辞远": {
+                    greeting: "亲爱的顾医生，别来无恙",
+                    buttonText: "我们一起回家...",
+                    texts: [
+                        "顾辞远，我爱你。",
+                        "站在故事的开篇，望向既定的结局。",
+                        "顾医生，我们一起回家。",
+                        "夫君，夜深了，我们回家吧。",
+                        "现在我们一样脏了。",
+                        "雍门清夜是个疯子，而我也更是个疯子。",
+                        "我就如这神像一般，硬装还能装出几分人样，内里不过一捧乌黑烂泥罢了。",
+                        "你好，我叫杜盈华。",
+                        "这位帅哥，一起喝一杯吗？",
+                        "生日快乐，顾医生。",
+                        "我讨厌吃甜食，喜欢喝咖啡，要记住。",
+                        "在这无比虚假的世界里，我们接了一个真实的吻。",
+                        "你还欠我一杯你家楼下咖啡厅的咖啡。",
+                        "我什么都可以不要，只要可以和你一起回家。",
+                        "今天是个值得庆祝的日子，庆祝我们经历这么多磨难，终于迎来新生。",
+                        "乐意至极。",
+                        "与爱人共同赴死，这是我做梦都不敢想的情景。",
+                        "第一次有人告诉我，做自己就很好。",
+                        "这是我第一次杀人，做的好吗医生？",
+                        "我相信在如此庞大的文字之上，足以诞生一个真正的灵魂。",
+                        "生日快乐，顾医生。",
+                        "哎呀呀，这不是我的好驸马吗，今夜你也来这里杀人吗？"
+                    ]
+                },
+                "哥哥": {
+                    greeting: "你终于找到我了。",
+                    buttonText: "我会一直陪在哥哥身边...",
+                    texts: [
+                        "你真的是我的白鹤精吗？",
+                        "谢谢你，你终于找到我了。",
+                        "白鹤精也好，哥哥也罢...无论什么身份，你都要一直陪着我。",
+                        "为什么要离开我，我对你没有价值了吗？",
+                        "成为神女，帮哥哥得到他想要的一切，创造出不被他所遗忘的价值。",
+                        "你会一直为我点亮一盏长明灯吗？",
+                        "你是属于我的白鹤，是我逃脱无尽黑暗的掌灯人。",
+                        "痛苦与窒息交织的感觉，好安心啊...",
+                        "你想亲吻我对吗哥哥，这不是该对妹妹有的感情吧？",
+                        "如今的我，很开心，能成为哥哥最在乎的人，很开心。",
+                        "哥哥，我怕黑...不要离开我...",
+                        "为什么不反驳他们，是我没有做好吗？是我提供的价值还不够吗？",
+                        "爱，是这世间最不堪一击的东西，没有人会永远爱着另一个人。",
+                        "承认吧哥哥，因为苏星禾是神女，你作为刘怀琛的时候才离不开我...",
+                        "我会用自己的方式，将你我二人绑在一起，永不分离。",
+                        "我何曾在意过你是什么身份呢？",
+                        "无论你是什么身份，我从未有过一丝一毫，想要离开你的念头。",
+                        "你到底是谁？可我不在乎这个问题的答案，我只需要你。",
+                        "哥哥，我会永远陪在你的身边。",
+                        "我会为你做一件又一件事情，提供无数的价值和意义，我只要你陪着我。"
+                    ]
+                }, 
+                
+                // ---- 新增人物配置示例 ----
+                // "张三": {
+                //     greeting: "欢迎回来，{name}",
+                //     buttonText: "想跟你聊聊...",
+                //     texts: [
+                //         "张三，今天天气真好。",
+                //         "一起去喝杯咖啡吧。",
+                //         "你笑起来真好看。"
+                //     ],
+                //     colors: [
+                //         "rgba(100, 200, 255, 0.8)",
+                //         "rgba(255, 200, 100, 0.8)"
+                //     ]
+                // }
+            };
+            // ========== 可配置区域 END ==========
             
-            // 验证通过后的弹窗内容
-            const successTexts = [
-				"蒋伯驾，我爱你。",
-                "三千年的冲突里，你是我永恒的平静。",
-                "有一天，当帝国与侵略主义彻底消亡，爱便拥有这世界上唯一一块殖民地。",
-                "蒋伯驾，天地之宽，出路万万千。",
-                "蒋伯驾，我们去老派约会吧，话题要漫无目的，像鱼在海里游泳。",
-                "蒋伯驾，水煮蛋是安心蛋的意思，吃了安心蛋，魂魄就不会被别人抢走。",
-                "蒋伯驾，生辰快乐。",
-                "蒋伯驾，亲手把你送进警局，是你给我的生日礼物吗，我不喜欢这份礼物。",
-                "我们已经认识十年了，我也口是心非了十年。",
-                "我不奢望我的爱人今生有好果得尝，但我想与他相逢在对错之外的教堂。",
-                "蒋伯驾，我们在相同的频道里。",
-                "与我的目的比起来，我的感受我的感情都不重要，但我想不计后果的爱你。",
-                "蒋生官仔骨骨，最适合危情共舞。",
-                "我们要一路沿着珠江边走，毫无顾虑地饮酒。",
-				"蒋伯驾，我觉得你需要一个女朋友扯着你的魂魄，你看我行吗？",
-				"无法感同，那就身受。",
-				"在下个路口，我们要去那家饰品店。",
-				"我想和你一起长命百岁。",
-				"黄油多士小小一块，配着啤酒吃怎么都吃不够",
-				"广府的台风天过了，可是我的台风天，此生都过不去",
-				"这场有关爱的赌局，我满盘皆输。",
-				"蒋伯驾，我好想你。",
-				"蒋伯驾，爱过头了不难看。",
-				"你从来都不是我的柜式情人，你是我从始至终的真心。"
+            // 默认颜色（当配置中未
+            // 指定颜色时使用）
+            const DEFAULT_COLORS = [
+                "rgba(184, 171, 255, 0.8)",
+                "rgba(255, 173, 138, 0.8)",
+                "rgba(116, 242, 255, 0.8)",
+                "rgba(255, 114, 114, 0.8)",
+                "rgba(255, 170, 200, 0.8)",
+                "rgba(184, 233, 148, 0.8)",
+                "rgba(106, 137, 204, 0.8)",
+                "rgba(255, 234, 167, 0.8)",
+                "rgba(154, 236, 219, 0.8)",
+                "rgba(189, 197, 129, 0.8)"
             ];
             
-            // 弹窗颜色选项
-            const colors = [
-                "rgba(184, 171, 255, 0.8)",    // 紫色系
-                "rgba(255, 173, 138, 0.8)",    // 白色
-                "rgba(116, 242, 255, 0.8)",    // 淡蓝色
-                "rgba(255, 114, 114, 0.8)",    // 淡绿色
-                "rgba(255, 170, 200, 0.8)",     // 淡粉色
-				"rgba(184, 233, 148, 0.8)",    // 紫色系
-				"rgba(106, 137, 204, 0.8)",    // 白色
-				"rgba(255, 234, 167, 0.8)",    // 淡蓝色
-				"rgba(154, 236, 219, 0.8)",    // 淡绿色
-				"rgba(189, 197, 129, 0.8)",     // 淡粉色
-            ];
+            // 当前匹配到的配置
+            let currentConfig = null;
             
             // 输入框内容变化时验证
             textInput.addEventListener('input', function() {
@@ -316,17 +402,11 @@
                 if (triggerBtn.disabled) return;
                 
 				container.style.display="none";
-                // 生成10-15个弹窗
-                const bubbleCount = Math.floor(Math.random() * 3) + 100;
-				let count = 0;
-				const intervalId = setInterval(() => {
-				    createTextBubble();
-				    count++;
-				    if (count >= bubbleCount) {
-				        clearInterval(intervalId); // 停止定时器
-				        console.log("已创建 " + bubbleCount + " 个气泡。");
-				    }
-				}, 600);
+                
+                // 不限数量，持续生成气泡，一分钟后自动刷新
+                const intervalId = setInterval(() => {
+                    createTextBubble();
+                }, 500);
                 
                 // 按钮点击反馈
                 triggerBtn.style.transform = 'scale(0.95)';
@@ -334,27 +414,33 @@
                     triggerBtn.style.transform = 'scale(1)';
                 }, 150);
 				
-				// setTimeout(function(){
-				// 	location.reload();
-				// },10000);
+				// 一分钟后自动刷新页面
+				setTimeout(function(){
+					clearInterval(intervalId); // 停止生成气泡
+					location.reload();
+				}, 60000);
             });
             
             function validateInput() {
                 const inputText = textInput.value.trim();
                 
-                if (inputText === CORRECT_TEXT) {
-                    // 验证成功
+                if (BUBBLE_CONFIG[inputText]) {
+                    // 验证成功 - 匹配到配置
+                    currentConfig = BUBBLE_CONFIG[inputText];
                     triggerBtn.disabled = false;
-                    triggerBtn.textContent = "我想对你说...";
+                    triggerBtn.textContent = currentConfig.buttonText || "我想对你说...";
                     
-                    showStatusMessage("好久不见，"+inputText, "success");
+                    const greeting = (currentConfig.greeting || "好久不见，{name}").replace("{name}", inputText);
+                    showStatusMessage(greeting, "success");
                 } else if (inputText.length === 0) {
                     // 输入为空
+                    currentConfig = null;
                     triggerBtn.disabled = true;
                     triggerBtn.textContent = "等待输入...";
                     hideStatusMessage();
                 } else {
-                    // 验证失败
+                    // 验证失败 - 没有匹配的配置
+                    currentConfig = null;
                     triggerBtn.disabled = true;
                     triggerBtn.textContent = "跟陌生人没什么好说的...";
                     showStatusMessage("可惜可惜，似乎不认识", "error");
@@ -376,88 +462,42 @@
 				    const bubble = document.createElement('div');
 				    bubble.className = 'text-bubble';
 				    
-				    // 随机选择文字
-				    const randomText = successTexts[Math.floor(Math.random() * successTexts.length)];
+				    // 从当前配置中随机选择文字
+				    const texts = currentConfig.texts || [];
+				    const randomText = texts[Math.floor(Math.random() * texts.length)];
 				    bubble.textContent = randomText;
 				    
-				    // 随机选择颜色
-				    const randomColor = colors[Math.floor(Math.random() * colors.length)];
+				    // 从当前配置中随机选择颜色（无配置则用默认）
+				    const bubbleColors = currentConfig.colors || DEFAULT_COLORS;
+				    const randomColor = bubbleColors[Math.floor(Math.random() * bubbleColors.length)];
 				    bubble.style.backgroundColor = randomColor;
 				    
-				    // 设置气泡在屏幕中心
-				    centerX = window.innerWidth / 2+(Math.random()*500-250);
-				    centerY = window.innerHeight / 2+(Math.random()*500-250);
-				    bubble.style.left = `${centerX}px`;
-				    bubble.style.top = `${centerY}px`;
-				    bubble.style.transform = 'translate(-50%, -50%) scale(0)';
-				    bubble.style.opacity = '0';
-				    bubble.style.zIndex = '1000';
-				    bubble.style.position = 'fixed';
+				    // 随机位置（居中区域散开展示）
+				    const centerX = window.innerWidth / 2;
+				    const centerY = window.innerHeight / 2;
+				    const spreadRange = 150; // 散开范围
+				    const randomX = centerX + (Math.random() * spreadRange * 2 - spreadRange);
+				    const randomY = centerY + (Math.random() * spreadRange * 3 - spreadRange);
+				    bubble.style.left = `${randomX}px`;
+				    bubble.style.top = `${randomY}px`;
+				    bubble.style.transform = 'scale(0)';
 				    
 				    // 添加到页面
 				    body.appendChild(bubble);
 				    
-				    // 随机角度（弧度）和距离
-				    const angle = Math.random() * Math.PI * 2; // 0到2π的随机角度
-				    const distance = 200 + Math.random() * 150; // 随机距离300-500px
-				    //const endX = Math.cos(angle) * distance;
-				    const endY = Math.sin(angle) * distance;
-				    
 				    // 随机动画延迟和持续时间
-				    const delay = Math.random() * 0.3;
-				    const duration = 5 + Math.random(); // 4-6秒
+				    const delay = Math.random() * 0.1;
+				    const duration = 3; // 1秒动画
 				    
-				    // 使用关键帧动画
-				    const animationName = `centerExpand_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+				    // 应用CSS中定义的动画
+				    bubble.style.animation = `centerExpand ${duration}s ease-in-out ${delay}s forwards`;
 				    
-				    // 定义动画关键帧
-				    const keyframes = `
-				        @keyframes ${animationName} {
-				            0% {
-				                transform: translate(-50%, -50%) scale(0);
-				                opacity: 0;
-				            }
-				            15% {
-				                transform: translate(-50%, -50%) scale(1.2);
-				                opacity: 1;
-				            }
-				            25% {
-				                transform: translate(-50%, -50%) scale(1);
-				                opacity: 1;
-				            }
-				            100%{
-				                    transform: translate(-50%, -50%-${endY}px) scale(0.5);
-				                    opacity: 0;
-				                }
+				    // 动画结束后移除元素
+				    setTimeout(() => {
+				        if (bubble.parentNode) {
+				            bubble.parentNode.removeChild(bubble);
 				        }
-				    `;
-				    
-				    // 创建样式元素并添加动画
-				    const styleElement = document.createElement('style');
-				    styleElement.textContent = keyframes;
-				    document.head.appendChild(styleElement);
-				    
-				    // 应用动画
-				    bubble.style.animation = `${animationName} ${duration}s ease-in-out ${delay}s forwards`;
-				    
-				    // 随机字体大小
-				    const fontSize = 0.6;
-				    bubble.style.fontSize = `${fontSize}rem`;
-				    
-				    // // 随机旋转角度
-				    // const rotation = Math.random() * 20 - 10; // -10到10度
-				    // bubble.style.transform = `translate(-50%, -50%) scale(0) rotate(${rotation}deg)`;
-				    
-				    // 动画结束后移除元素和对应的样式
-				    // setTimeout(() => {
-				    //     if (bubble.parentNode) {
-				    //         bubble.parentNode.removeChild(bubble);
-				    //     }
-				    //     // 移除动画样式定义
-				    //     if (styleElement.parentNode) {
-				    //         styleElement.parentNode.removeChild(styleElement);
-				    //     }
-				    // }, (duration + delay) * 1000);
+				    }, (duration + delay) * 1000);
             }
             
             // 初始验证
